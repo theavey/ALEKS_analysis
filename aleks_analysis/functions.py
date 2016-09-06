@@ -1,6 +1,7 @@
 # todo figure out how to import without polluting namespace
 import pandas as pd
 import numpy as np
+import re
 
 
 def hex_to_bin_state(state):
