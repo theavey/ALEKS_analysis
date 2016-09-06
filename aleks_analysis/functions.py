@@ -37,12 +37,31 @@ def import_domains(base_name):
 
 
 def bin_states(dataframe, domain_dict):
+    num_rows = len(dataframe.index)
     domain_number = dataframe.iat[0,0][-1]
     domain_name = 'genchema.' + domain_number + '.dom'
-    domain = domain_dict[domain_name]
-    output_array = np.zeros([len(dataframe.index), len(domain)])
-    grades = dataframe['grade']
+    index = make_column_multiindex(domain_name, domain_dict)
+    other_index = pd.MultiIndex.from_tuples((('other', 'grade', 'grade'),
+                                             ('other', 'domain', 'name')))
+    output_array = np.zeros([len(dataframe.index), len(index)])
+    grades = pd.DataFrame(np.array([dataframe['grade'],[domain_name]*num_rows]).transpose(),
+                          columns=other_index)
     for row in dataframe.itertuples():
         output_array[row[0]] = list(hex_to_bin_state(row[1]))
-    state_frame = pd.DataFrame(output_array.astype(bool), columns=domain)
+    state_frame = pd.DataFrame(output_array.astype(bool), columns=index)
     return state_frame.join(grades)
+
+
+def make_column_multiindex(domain_name, domain_dict):
+    domain = domain_dict[domain_name]
+    topics = []
+    item_count = len(domain)
+    for item in domain:
+        topic_match = re.match('[a-zA-Z]+', item)
+        try:
+            topic = topic_match.group(0)
+        except AttributeError:
+            raise InputError('topic not found in item name: {}'.format(item))
+        topics.append(topic)
+    tuples = list(zip(('state',)*item_count, topics, domain))
+    return pd.MultiIndex.from_tuples(tuples, names=['type', 'topic', 'item'])
