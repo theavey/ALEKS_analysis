@@ -2,11 +2,12 @@
 import pandas as pd
 import numpy as np
 import re
+import sklearn
 
 
 def hex_to_bin_state(state):
     hex_num = state[1:-3]
-    # todo use this domain import?
+    # todo use this domain import? or get rid of it
     domain = state[-1]
     valid_last_digits = int(state[-3])
     if valid_last_digits not in range(1,5):
@@ -66,3 +67,12 @@ def make_column_multiindex(domain_name, domain_dict):
         topics.append(topic)
     tuples = list(zip(('state',)*item_count, topics, domain))
     return pd.MultiIndex.from_tuples(tuples, names=['type', 'topic', 'item'])
+
+
+def fit_func_score(df_x, y):
+    # todo find better way to take or get y values?
+    # Maybe wrap this into a larger function that does it for all topics.
+    regression = sklearn.linear_model.LinearRegression()
+    values = df_x.values.astype(float)
+    regression.fit(values, y)
+    return regression.score(values, y)
