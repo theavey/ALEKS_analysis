@@ -45,7 +45,7 @@ def bin_states(dataframe, domain_dict):
     other_index = pd.MultiIndex.from_tuples((('other', 'grade', 'grade'),
                                              ('other', 'domain', 'name')))
     output_array = np.zeros([len(dataframe.index), len(index)])
-    grades = pd.DataFrame(np.array([dataframe['grade'],[domain_name]*num_rows]).transpose(),
+    grades = pd.DataFrame(np.array([dataframe['grade'], [domain_name]*num_rows]).transpose(),
                           columns=other_index)
     for row in dataframe.itertuples():
         output_array[row[0]] = list(hex_to_bin_state(row[1]))
@@ -62,7 +62,7 @@ def make_column_multiindex(domain_name, domain_dict):
         try:
             topic = topic_match.group(0)
         except AttributeError:
-            raise InputError('topic not found in item name: {}'.format(item))
+            raise ImportError('topic not found in item name: {}'.format(item))
         topics.append(topic)
     tuples = list(zip(('state',)*item_count, topics, domain))
     return pd.MultiIndex.from_tuples(tuples, names=['type', 'topic', 'item'])
